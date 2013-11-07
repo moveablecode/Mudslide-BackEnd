@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="apple-touch-icon" href="Images/icon.png"/>
+        <script type="text/javascript" src="Scripts/FatFractal.js"></script>
+        <script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jquery/jquery-1.8.1.min.js"></script>
+        <script type="text/javascript" src="Scripts/player.js"></script>
+                <style>
+
+			body
+			{
+				background-color : #2F3238;
+				color: #7F8289;
+				font-weight: 300;
+				font-size: 16px;
+				font-family: 'Titillium Web', sans-serif;
+				line-height: 28px;
+				margin: -20px 0px;
+			}
+			
+			h3{
+				color: #FFFFFF;
+				text-align: center;
+				font-size: 24px;
+				font-weight: 300;
+				line-height: 1em;
+				margin-bottom: 30px;
+				text-transform: uppercase;
+				font-family: 'Titillium Web', sans-serif;
+			}
+			input{
+				border: 1px solid #2F3238;
+				-webkit-border-radius: 0;
+				-moz-border-radius: 0;
+				border-radius: 0;
+				-webkit-box-shadow: none;
+				-moz-box-shadow: none;
+				box-shadow: none;
+				background: #26292E;
+				color: #FFFFFF;
+				font-size: 16px;
+				height: auto;
+				padding: 15px;
+				margin: 0;
+				resize: none;
+			}
+			.submit {
+				background: #3C3F45;
+				color: #23262C;
+				cursor: pointer;
+				display: inline-block;
+				font-size: 18px;
+				font-weight: 500;
+				padding: 16px 40px;
+				text-align: center;
+				vertical-align: middle;
+				width: auto;
+				-webkit-transition: background 0.1s linear 0s, color 0.1s linear 0s;
+				-moz-transition: background 0.1s linear 0s, color 0.1s linear 0s;
+				-o-transition: background 0.1s linear 0s, color 0.1s linear 0s;
+				transition: background 0.1s linear 0s, color 0.1s linear 0s;
+			}
+			
+			a {
+				color: #DE5E60;
+				text-decoration: none;
+				cursor: pointer;
+				-webkit-transition: color 0.1s linear 0s;
+				-moz-transition: color 0.1s linear 0s;
+				-o-transition: color 0.1s linear 0s;
+				transition: color 0.1s linear 0s;
+			}
+			
+			a:hover
+			{ 
+			background-color:LightBlue;
+			}
+			.list{
+				border: 1px solid #2F3238;
+				-webkit-border-radius: 0;
+				-moz-border-radius: 0;
+				border-radius: 0;
+				-webkit-box-shadow: none;
+				-moz-box-shadow: none;
+				box-shadow: none;
+				background: #26292E;
+				color: #FFFFFF;
+				font-size: 16px;
+				height: auto;
+				padding: 0px 15px;
+				margin: 0px;
+				resize: none;
+				list-style-type: none;
+			}
+			
+			ul li
+			{
+				border-top: 1px dashed #2F3238;
+				border-bottom: 1px dashed #2F3238;
+				font-size: 16px;
+				height: auto;
+				padding: 11px;
+				text-align:left;
+			}
+			
+			h1
+			{
+				margin: 0px;
+			}
+			
+       </style>
+        <title>Player Test</title>    
+    </head>
+    <body id = "body">
+			<div style="width:100%; background-color:rgb(28, 30, 31); padding: 20px 0px; margin: 20px 0px">
+				<h1 style="text-align:center; vertical-align:middle;" id="baseurl">
+					<font style="font-size:64px; font-weight:bold;">Moveablecode</font>
+					<font style="font-size:20px;">Tag! Its your turn!</font>
+					<label style="position: absolute;right: 0px;">
+						<font id="loggedInUserLabel" style="font-size:20px;">Guest</font>
+						<font style="font-size:20px;">logged in</font>
+					</label>
+				</h1>
+			</div>
+			
+		<div>
+			<table style="width:100%; padding:0px 30px;" cellpadding="30">
+				<tr>
+					<td colspan="3" style="font-size:26px; text-align:center;">
+						<label >Server status :</label>
+						<label id="serverStatusLabel" style="color:red;">Not Connected !!</label>
+					</td>
+				</tr>
+				<tr>
+					<td style="width:33%;vertical-align: top;">
+						<div style="float:center;text-align: center;">
+							<h3>Player Info</h3>
+							<input id="playerNameField" type="text" placeholder="Player Name" value="" name="name"><br>
+							<input id="playerPasswordField" type="password" placeholder="Password" value="" name="name"><br><br>
+							
+							<label>Geo Location</label><br>
+							<input id="latitudeField" type="text" placeholder="Latitude" value="" name="name"><br>
+							<input id="longitudeField" type="text" placeholder="Longitude" value="" name="name"><br>
+							
+							<a id="playerUpdateButton" class="submit" onclick="PlayerModal.onUpdateAction();" style="margin-top: 30px;" href="#">Update</a>
+						</div>
+					</td>
+					<td style="width:33%;vertical-align: top;">
+						<div style="float:center;text-align: center;">
+							<h3>All Players</h3>
+							<ul style="list-style-type: none;padding: 0px 15px;height: 30px;">
+								<li>
+									<label>Player</label><label style="float:right;">   Lat / Long</label>
+								</li>
+							</ul>
+							<ul id="allPlayerList" class="list">
+							</ul>
+						</div>
+					</td>
+					<td style="width:33%;vertical-align: top;">
+						<div style="float:center;text-align: center;">
+							<h3>Other Players In Range</h3>
+							<input id="radiusRangeField" type="text" placeholder="(in Miles)" value="" name="name">
+							<a id="findPlayersButton" onclick="PlayerModal.onFindPlayerAction();" class="submit" style="padding: 8px 18px; font-size: 16px;" href="#">Find</a><br>
+							<ul style="list-style-type: none;padding: 0px 15px;height: 30px;">
+								<li>
+									<label>Player</label><label style="float:right;">   Lat / Long</label>
+								</li>
+							</ul>
+							<ul id="playersInRangeList" class="list">
+							
+							</ul>
+						</div>
+					</td>
+				</tr>
+			</table>			
+		</div>
+    </body>
+</html>
+
+
+
+

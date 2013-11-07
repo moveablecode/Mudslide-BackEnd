@@ -1,0 +1,44 @@
+<html>
+<head>
+  <script type="text/javascript">
+    function httpsRedirect() {
+      var httpURL = window.location.hostname + window.location.pathname;
+      var httpsURL = "https://" + httpURL;
+      window.location = httpsURL;
+    }
+    console.log(window.location.href);
+    if (!window.location.href.match('^https://') && !window.location.href.match('^http://localhost'))
+      httpsRedirect();
+  </script>
+  <script type="text/javascript" src="Scripts/FatFractal.js"></script>
+  <script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jquery/jquery-1.8.1.min.js"></script>
+  <script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jquery.mobile/1.2.0/jquery.mobile-1.2.0.min.js"></script>
+  <script type="text/javascript" src="Scripts/celebrity.js"></script>
+</head>
+<body>
+  <div style="display: table; height: 100%; width:100%; overflow: hidden;">
+    <div style=" display: table-cell; vertical-align: middle;">
+      <div >
+        <h1 style="text-align:center; vertical-align:middle;" id="baseurl">
+			<font style="font-size:64px; font-weight:bold;">Moveablecode</font>
+			<font style="font-size:20px;">Tag! Its your turn!</font>
+		</h1>
+      </div>
+    </div>
+  </div>
+  <p id="explain"></p>
+</body>
+<script type='text/javascript'>
+  var baseEl = document.getElementById('baseurl');
+  var re = /\/index.html$/;
+  var app = window.location.pathname.replace(re, "");
+  var appName = app.slice(1);
+  var host = window.location.hostname + (window.location.port ? ":" + window.location.port : "");
+  //baseEl.innerHTML = host + app;
+  //baseEl.innerHTML = "Moveablecode";
+  var explainEl = document.getElementById('explain');
+  //explainEl.innerHTML = "Application: " + appName + " is running on " + host;
+  window.document.title = "Application: " + appName + " default index.html page"
+  var ff = new FatFractal();
+</script>
+</html>

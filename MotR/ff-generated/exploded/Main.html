@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <link rel="apple-touch-icon" href="Images/icon.png"/>
+        <link rel="stylesheet" href="//ajax.aspnetcdn.com/ajax/jquery.mobile/1.2.0/jquery.mobile-1.2.0.min.css"/>
+        <script type="text/javascript" src="Scripts/FatFractal.js"></script>
+        <script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jquery/jquery-1.8.1.min.js"></script>
+        <script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jquery.mobile/1.2.0/jquery.mobile-1.2.0.min.js"></script>
+        <script type="text/javascript" src="Scripts/hoodyoodoo.js"></script>
+        <style>
+            label { color: white}
+            h1 { color: white; text-align: center; }    
+            .ui-page { background: black; }
+            .ui-field-contain { text-align: center; }
+            .nav-glyphish-example .ui-btn .ui-btn-inner { padding-top: 40px !important; }
+            .nav-glyphish-example .ui-btn .ui-icon { width: 30px !important; height: 30px !important; margin-left: -15px !important; box-shadow: none !important; -moz-box-shadow: none !important; -webkit-box-shadow: none !important; -webkit-border-radius: 0 !important; border-radius: 0 !important; }
+            #wypwyt .ui-icon, #acpwyt .ui-icon, #tcpwyt .ui-icon{ background: url(Images/button_play_gray.png) 50% 50% no-repeat; background-size: 32px 32px; }
+            #wypact .ui-icon, #acpact .ui-icon, #tcpact .ui-icon { background: url(Images/button_add_gray.png) 50% 50% no-repeat; background-size: 32px 32px;  }
+            #wyptct .ui-icon, #acptct .ui-icon, #tcptct .ui-icon { background: url(Images/button_top_celebrity.png) 50% 50% no-repeat;  background-size: 32px 32px; }
+            .imgAjaxLoader{position: fixed;top: 50%;left: 50%;margin-top: -24px;margin-left: -24px;z-index: 100;display: none;}
+            .celebImage{max-width:200px;max-height:300px;}
+            #fileUploaderDropDiv{margin:0;padding:0;}
+       </style>
+        <title>HoodYooDoo?</title>    
+    </head>
+    <body id = "body">
+        <div data-role="page" id="WouldYa">
+            <div data-role="content">
+                <h1>Who'd you do?</h1>
+                <div class="ui-grid-a">
+                    <div class="ui-block-a" style="text-align: center">
+                        <a style="height: 320px" data-role="button">
+                            <img id="leftCelebrityButton" class="celebImage" onclick="HoodyoodooViewModel.celebrityWasPicked(this)" src="Images/mystery2.png" alt="Celeb Image"/>
+                        </a>
+                        <span id="leftCelebrityLabel" style="color: white;">Celeb Name</span>
+                    </div>
+                    <div class="ui-block-b" style="text-align: center">
+                        <a style="height: 320px" data-role="button">
+                            <img id="rightCelebrityButton" class="celebImage" onclick="HoodyoodooViewModel.celebrityWasPicked(this)" src="Images/mystery3.png" alt="Celeb Image"/>
+                        </a>
+                        <span id="rightCelebrityLabel" style="color: white;">Celeb Name</span>
+                    </div>
+                </div>
+                <h1>
+                    Pick One!
+                    <br>
+                    <img id="playAgainButton" style="display:hidden;" onclick="HoodyoodooViewModel.loadCelebrities()" src="Images/button_go.png" alt="GO"/>    
+                </h1>
+                <img style="display: inline;" id="genderButton" onclick="HoodyoodooViewModel.toggleGender()" src="Images/button_gender_new.png" />
+            </div> <!-- /content -->
+            <div data-role="footer" data-position="fixed" class="nav-glyphish-example">
+                <div data-role="navbar" class="nav-glyphish-example">
+                    <ul>
+                        <li><a href="#" id="wypwyt" data-icon="custom">WouldYa</a></li>
+                        <li><a href="#AddCelebrity" id = "wypact" data-icon="custom">Add Celebrity</a></li>
+                        <li><a href="#TopCelebrity" id = "wyptct" onclick="HoodyoodooViewModel.getTopCelebrity()" data-icon="custom">Top Celebrity</a></li>
+                    </ul>
+                </div> <!-- /navbar -->
+            </div> <!-- /footer -->
+            <div data-role="popup" data-position-to="window" id="wouldYaLoginPopup" data-theme="a" class="ui-content">
+                <h1>Please Register/Log In</h1>
+                <div data-role="fieldcontain">
+                       <label for="wouldYaUsernameField">Username</label>
+                    <input type="text" id="wouldYaUsernameField"/>
+                </div>
+                <div data-role="fieldcontain">
+                    <label for="wouldYaPasswordField">Password</label>
+                    <input type="password" id="wouldYaPasswordField"/>
+                </div>
+                <a id="wouldYaLoginButton" data-role="button" onclick="HoodyoodooViewModel.login('persistWouldYa')">Log In</a>
+            </div> <!-- /Login Popup for WouldYa -->
+        </div> <!-- /WouldYa -->
+        <div data-role="page" id="AddCelebrity">        
+            <div data-role="header">
+                <a id="doneButton" class="ui-btn-right" onclick="HoodyoodooViewModel.doneAction()">Done</a>
+                <h1>Add a Celebrity</h1>                                       
+            </div> <!-- /header -->
+            <div data-role="content">
+                <div data-role="fieldcontain">
+                    <label for="firstNameField">First Name</label>
+                    <input type="text" id="firstNameField"/>
+                </div>
+                <div data-role="fieldcontain">
+                    <label for="lastNameField">Last Name</label>
+                    <input type="text" id="lastNameField"/>
+                </div>
+                <center id = "fileUploaderContainer">
+                   <div id="fileUploaderDropDiv" style="margin:0; padding:0;">
+                      <img id= "addCelebImage" class="celebImage" src="Images/addphoto.png">
+                   </div>
+                </center>
+            </div> <!-- /content -->
+            <div data-role="footer" data-position="fixed" class="nav-glyphish-example">
+                <div data-role="navbar" class="nav-glyphish-example">
+                    <ul>
+                        <li><a href="#WouldYa" id="acpwyt" data-icon="custom">WouldYa</a></li>
+                        <li><a href="#" id="acpact" data-icon="custom">Add Celebrity</a></li>
+                        <li><a href="#TopCelebrity" onclick="HoodyoodooViewModel.getTopCelebrity()" id="acptct" data-icon="custom">Top Celebrity</a></li>
+                    </ul>
+                </div> <!-- /navbar -->
+            </div> <!-- /footer -->
+            <div data-role="popup" data-position-to="window" id="addCelebLoginPopup" data-theme="a" class="ui-content">
+                <h1>Please Register/Log In</h1>
+                <div data-role="fieldcontain">
+                    <label for="addCelebUsernameField">Username</label>
+                    <input type="text" id="addCelebUsernameField"/>
+                </div>
+                <div data-role="fieldcontain">
+                    <label for="addCelebPasswordField">Password</label>
+                    <input type="password" id="addCelebPasswordField"/>
+                </div>
+                <a id="addCelebrityLoginButton" data-role="button" onclick="HoodyoodooViewModel.login('addCelebrity')">Log In</a>
+            </div> <!-- /Login Popup for AddCelebrity -->
+            <div data-role="popup" data-position-to="window" id="addGenderPopup" data-theme="a" class="ui-content">
+                <h1>Select Gender</h1>
+                <a id="selectMaleButton" data-role="button" onclick="HoodyoodooViewModel.addGender('male')">Male</a>
+                <a id="selectFemaleButton" data-role="button" onclick="HoodyoodooViewModel.addGender('female')">Female</a>
+            </div> <!-- /Select Gender Popup for AddCelebrity -->
+        </div> <!-- /AddCelebrity -->
+        <div data-role="page" id="TopCelebrity">
+            <div data-role="content">
+                <h1>Top Celebrity<br><br>
+                    <img id="topCelebImage" class="celebImage" src="Images/mystery3.png" alt="Celeb Image"/>
+                    <br>
+                    <br>
+                    <div id="topCelebrityInfo" style="color: white; display: hidden;">
+                        <span id="topCelebrityLabel" style="color: white;">Top Celeb Name</span>
+                    </div>
+                </h1>
+                <h3 style="color: white; text-align: center; display: hidden;">Was selected &emsp;&emsp;<span id="selectedCountLabel">0</span></h3>
+                <h3 style="color: white; text-align: center; display: hidden;">Was rejected &emsp;&emsp;<span id="rejectedCountLabel">0</span></h3>
+            </div> <!-- /content -->
+            <div data-role="footer" data-position="fixed" class="nav-glyphish-example">
+                <div data-role="navbar" class="nav-glyphish-example">
+                    <ul>
+                        <li><a href="#WouldYa" id="tcpwyt" data-icon="custom">WouldYa</a></li>
+                        <li><a href="#AddCelebrity" id="tcpact" data-icon="custom">Add Celebrity</a></li>
+                        <li><a href="#" onclick="HoodyoodooViewModel.getTopCelebrity()"  id="tcptct" data-icon="custom">Top Celebrity</a></li>
+                    </ul>
+                </div> <!-- /navbar -->
+            </div> <!-- /footer -->
+            <div data-role="popup" data-position-to="window" id="topCelebLoginPopup" data-theme="a" class="ui-content">
+                <h1>Please Register/Log In</h1>
+                <div data-role="fieldcontain">
+                       <label for="topCelebUsernameField">Username</label>
+                    <input type="text" id="topCelebUsernameField"/>
+                </div>
+                <div data-role="fieldcontain">
+                    <label for="topCelebPasswordField">Password</label>
+                    <input type="password" id="topCelebPasswordField"/>
+                </div>
+                <a id="topCelebrityLoginButton" data-role="button" onclick="HoodyoodooViewModel.login('getTopCelebrity')">Log In</a>
+            </div> <!-- /Login Popup for TopCelebrity -->
+        </div> <!-- /TopCelebrity -->
+    </body>
+</html>
+
+
+
