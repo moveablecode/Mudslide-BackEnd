@@ -1,5 +1,13 @@
 var ff = require('ffef/FatFractal');
 
+var Realm = {
+		kEarth : 0
+		,kWater : 1
+		,kFire : 2
+		,kLight : 3
+		,kDark : 4
+	};
+
 // location
 function GeoLocation(data)
 {
@@ -32,11 +40,13 @@ function Player(data) {
         this.clazz = data.clazz;
 		this.userName = data.userName;
 		this.location = data.location;
+		this.currentRealm = data.currentRealm;
 		
     } else {
         this.clazz = "Player";
 		this.userName = "";
 		this.location = new GeoLocation();
+		this.currentRealm = Realm.kEarth;
     }
     return this;
 }
