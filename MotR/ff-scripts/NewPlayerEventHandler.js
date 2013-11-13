@@ -41,12 +41,16 @@ function Player(data) {
 		this.userName = data.userName;
 		this.location = data.location;
 		this.currentRealm = data.currentRealm;
+		this.latitude = data.latitude;
+		this.longitude = data.longitude;
 		
     } else {
         this.clazz = "Player";
 		this.userName = "";
 		this.location = new GeoLocation();
 		this.currentRealm = Realm.kEarth;
+		this.latitude = 0.0;
+		this.longitude = 0.0;
     }
     return this;
 }
