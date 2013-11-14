@@ -23,8 +23,8 @@ function GeoLocation(data)
 		
     } else {
         this.clazz = "FFGeoLocation";
-		this.latitude = 0;
-		this.longitude = 0;
+		this.latitude = 0e-15;
+		this.longitude = 0e-15;
 		this.altitude = null;
 		this.accuracy = null;
 		this.altitudeAccuracy = null;
@@ -37,20 +37,20 @@ function GeoLocation(data)
 // Player
 function Player(data) {
     if (data) {
-        this.clazz = data.clazz;
-		this.userName = data.userName;
-		this.location = data.location;
-		this.currentRealm = data.currentRealm;
-		this.latitude = data.latitude;
-		this.longitude = data.longitude;
+        this.clazz = data.clazz;	// String variable holds the class name
+		this.userName = data.userName;	// String variable holds the user name
+		this.location = data.location;	// Holds the location information of data type GeoLocation
+		this.currentRealm = data.currentRealm; // Hold an enum of realm whose value is an integer
+		this.latitude = data.latitude;	// Hold latitude of data type double
+		this.longitude = data.longitude; // Hold longitude of data type double
 		
     } else {
-        this.clazz = "Player";
-		this.userName = "";
-		this.location = new GeoLocation();
-		this.currentRealm = Realm.kEarth;
-		this.latitude = 0.0;
-		this.longitude = 0.0;
+        this.clazz = "Player";	// String variable holds the class name
+		this.userName = "";	// String variable holds the user name
+		this.location = new GeoLocation();	// Holds the location information of data type GeoLocation
+		this.currentRealm = Realm.kEarth;	// Hold an enum of realm whose value is an integer
+		this.latitude = 0e-15;	// Hold latitude of data type double
+		this.longitude = 0e-15;	// Hold longitude of data type double
     }
     return this;
 }
