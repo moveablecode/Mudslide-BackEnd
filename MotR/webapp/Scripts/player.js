@@ -73,9 +73,9 @@ var PlayerModal = (function() {
 				{
 					var listItem = document.createElement('li');
 					var latitudeText = (parseFloat(playerArr[i].latitude) < 0)? "&ordm;S" : "&ordm;N";
-					latitudeText = playerArr[i].latitude + latitudeText;
+					latitudeText = parseFloat(playerArr[i].latitude).toFixed(2) + latitudeText;
 					var longitudeText = (parseFloat(playerArr[i].longitude) < 0)? "&ordm;W" : "&ordm;E";
-					longitudeText = playerArr[i].longitude + longitudeText;
+					longitudeText = parseFloat(playerArr[i].longitude).toFixed(2) + longitudeText;
 					listItem.innerHTML = "<label>" + playerArr[i].userName + "</label><label style=\"float:right;\">" 
 										+ latitudeText + " "
 										+ longitudeText + "</label>";
@@ -117,9 +117,9 @@ var PlayerModal = (function() {
 						{
 							var listItem = document.createElement('li');
 							var latitudeText = (parseFloat(playerArr[i].latitude) < 0)? "&ordm;S" : "&ordm;N";
-							latitudeText = playerArr[i].latitude + latitudeText;
+							latitudeText = parseFloat(playerArr[i].latitude).toFixed(2) + latitudeText;
 							var longitudeText = (parseFloat(playerArr[i].longitude) < 0)? "&ordm;W" : "&ordm;E";
-							longitudeText = playerArr[i].longitude + longitudeText;
+							longitudeText = parseFloat(playerArr[i].longitude).toFixed(2) + longitudeText;
 							listItem.innerHTML = "<label>" + playerArr[i].userName + "</label><label style=\"float:right;\">" 
 												+ latitudeText + " "
 												+ longitudeText + "</label>";
