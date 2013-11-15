@@ -40,7 +40,7 @@ var PlayerModal = (function() {
 			this.getServerStatus();
 			this.fillPlayerInfo();
 			this.displayAllPlayers();
-			// this.displayOtherPlayersInRange();
+			this.displayOtherPlayersInRange();
         },
 
         fillPlayerInfo: function() {
@@ -53,8 +53,8 @@ var PlayerModal = (function() {
 					if(playerObj)
 					{
 						playerNameField.value = playerObj.userName;
-						// latitudeField.value = playerObj.location.latitude;
-						// longitudeField.value = playerObj.location.longitude;
+						latitudeField.value = playerObj.latitude;
+						longitudeField.value = playerObj.longitude;
 						loggedInUserLabel.innerHTML = playerObj.userName;
 					}
 					
@@ -72,13 +72,13 @@ var PlayerModal = (function() {
 				for(var i = 0; i < playerArr.length; i++)
 				{
 					var listItem = document.createElement('li');
-					// var latitudeText = (parseFloat(playerArr[i].location.latitude) < 0)? "&ordm;S" : "&ordm;N";
-					// latitudeText = playerArr[i].location.latitude + latitudeText;
-					// var longitudeText = (parseFloat(playerArr[i].location.longitude) < 0)? "&ordm;W" : "&ordm;E";
-					// longitudeText = playerArr[i].location.longitude + longitudeText;
+					var latitudeText = (parseFloat(playerArr[i].latitude) < 0)? "&ordm;S" : "&ordm;N";
+					latitudeText = playerArr[i].latitude + latitudeText;
+					var longitudeText = (parseFloat(playerArr[i].longitude) < 0)? "&ordm;W" : "&ordm;E";
+					longitudeText = playerArr[i].longitude + longitudeText;
 					listItem.innerHTML = "<label>" + playerArr[i].userName + "</label><label style=\"float:right;\">" 
-										+ "" + " "
-										+ "" + "</label>";
+										+ latitudeText + " "
+										+ longitudeText + "</label>";
 					
 					allPlayerList.appendChild(listItem);
 				}
@@ -108,21 +108,21 @@ var PlayerModal = (function() {
 				
 				ff.getObjFromUri("/Player/(createdBy eq '" + ff.loggedInUser().createdBy + "')",function(playerObj)
 				{
-					ff.getArrayFromUri("/Player/((distance(location, [" + playerObj.location.latitude + "," 
-									+ playerObj.location.longitude + "]) lte " + radiusRangeField.value + "e3) and guid ne '" + playerObj.guid + "')",function(playerArr)
+					ff.getArrayFromUri("/Player/((distance(location, [" + playerObj.latitude + "," 
+									+ playerObj.longitude + "]) lte " + radiusRangeField.value + "e3) and guid ne '" + playerObj.guid + "')",function(playerArr)
 					{
 						if(playerArr.length > 0) playersInRangeList.innerHTML = "";
 						
 						for(var i = 0; i < playerArr.length; i++)
 						{
 							var listItem = document.createElement('li');
-							// var latitudeText = (parseFloat(playerArr[i].location.latitude) < 0)? "&ordm;S" : "&ordm;N";
-							// latitudeText = playerArr[i].location.latitude + latitudeText;
-							// var longitudeText = (parseFloat(playerArr[i].location.longitude) < 0)? "&ordm;W" : "&ordm;E";
-							// longitudeText = playerArr[i].location.longitude + longitudeText;
+							var latitudeText = (parseFloat(playerArr[i].latitude) < 0)? "&ordm;S" : "&ordm;N";
+							latitudeText = playerArr[i].latitude + latitudeText;
+							var longitudeText = (parseFloat(playerArr[i].longitude) < 0)? "&ordm;W" : "&ordm;E";
+							longitudeText = playerArr[i].longitude + longitudeText;
 							listItem.innerHTML = "<label>" + playerArr[i].userName + "</label><label style=\"float:right;\">" 
-												+ "" + " "
-												+ "" + "</label>";
+												+ latitudeText + " "
+												+ longitudeText + "</label>";
 							
 							playersInRangeList.appendChild(listItem);
 						}
@@ -165,22 +165,22 @@ var PlayerModal = (function() {
 		updatePlayerInfo: function() {
 			ff.getObjFromUri("/Player/(createdBy eq '" + ff.loggedInUser().createdBy + "')",function(playerObj)
 			{
-				// playerObj.location.latitude = latitudeField.value;
-				// playerObj.location.longitude = longitudeField.value;
+				playerObj.latitude = latitudeField.value;
+				playerObj.longitude = longitudeField.value;
 				
 				loggedInUserLabel.innerHTML = playerObj.userName;
 				
 				ff.updateObj(playerObj , function()
 				{
 					self.displayAllPlayers();
-					// self.displayOtherPlayersInRange();
+					self.displayOtherPlayersInRange();
 				}, self.onFailure);
 				
 			}, this.onFailure);
 		},
 
         onFindPlayerAction: function() {
-		// this.displayOtherPlayersInRange();
+		this.displayOtherPlayersInRange();
         },
 		
 		getServerStatus: function() {
