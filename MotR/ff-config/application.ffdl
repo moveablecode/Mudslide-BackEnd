@@ -53,3 +53,4 @@ CREATE COLLECTION /Player OBJECTTYPE Player
 
 CREATE HANDLER CreatePlayer POST ON /FFUser Create AS javascript:require('scripts/NewPlayerEventHandler').handlePlayerCreate();
 CREATE EXTENSION /serverStatus UNSECURED AS javascript:require('scripts/ServerStat').checkServerStat();
+CREATE EXTENSION /serviceLocator UNSECURED AS javascript:require('scripts/ServiceLocator/ServiceLocatorHandler').handleServiceLocator();
