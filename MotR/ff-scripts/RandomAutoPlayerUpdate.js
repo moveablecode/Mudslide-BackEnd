@@ -8,7 +8,7 @@ function handleAutoPlayerUpdate() {
  	var allPlayersArr = ff.getArrayFromUri("/Player");
 
 	var randPlayerIndex = Math.floor(Math.random()*(allPlayersArr.length-0)+0);
-	var randPlayerLocationDecimal = (Math.random()*(3-0)+0);
+	var randPlayerLocationDecimal = (Math.random()*(1-0)+0);
 
 	allPlayersArr[randPlayerIndex].latitude = 12 + randPlayerLocationDecimal;
 	allPlayersArr[randPlayerIndex].longitude = 77 + randPlayerLocationDecimal;

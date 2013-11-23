@@ -9,6 +9,34 @@ var RequestStat =
     Start : 1
 };
 
+// Weather Report
+function WeatherReport(data) {
+    if (data) {
+        this.clazz = data.clazz;
+		this.observation_time	= data.observation_time;
+		this.temp_C = data.temp_C;
+		this.windspeedMiles = data.windspeedMiles;
+		this.winddirDegree = data.winddirDegree;
+		this.winddir16Point = data.winddir16Point;
+		this.humidity = data.humidity;
+		this.visibility = data.visibility;
+		this.pressure = data.pressure;
+		this.cloudcover = data.cloudcover;
+    } else {
+        this.clazz = "WeatherReport";
+		this.observation_time	= "";
+		this.temp_C = -1;
+		this.windspeedMiles = 0;
+		this.winddirDegree = 0;
+		this.winddir16Point = "N";
+		this.humidity = 0;
+		this.visibility = 0;
+		this.pressure = 0;
+		this.cloudcover = 0;
+    }
+    return this;
+}
+
 var _FreeApiBaseURL = 'http://api.worldweatheronline.com/free/v1/';
 /*
     Please change the FreeAPIKey to your own. 
@@ -115,6 +143,13 @@ function ReturnResponse(output)
 
 	var weatherReportData = ff.getObjFromUrl("/ff/resources/WeatherReport/(createdBy eq '" + currentRequestObject.createdBy + "')");
 
+	if(weatherReportData == null)
+	{
+		var newWeatherReportObj = new WeatherReport();
+
+		weatherReportData = ff.createObjAtUri(newWeatherReportObj, "/WeatherReport", currentRequestObject.createdBy);
+	}
+
 	if (weatherReportData && locationData.data.current_condition)
 	{
 		weatherReportData.observation_time	= locationData.data.current_condition[0].observation_time;
@@ -133,6 +168,7 @@ function ReturnResponse(output)
 	print(">>>>>>>>>>>>>>>>>>>>>>WEATHER UPDATED<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 
 	var requestQueueArr = ff.getArrayFromUri("/RequestQueue?sort=updatedAt asc");
+	print(requestQueueArr.length + "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 
 	if(currentRequestObject.guid == requestQueueArr[0].guid)
 	{

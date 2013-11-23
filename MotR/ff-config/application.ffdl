@@ -63,15 +63,8 @@ CREATE EXTENSION /autoUserCreateDestroy UNSECURED AS javascript:require('scripts
 
 # WeatherReport collection and object
 
-CREATE OBJECTTYPE WeatherReport   (observation_time STRING,
-									temp_C NUMERIC,
-									windspeedMiles NUMERIC,
-									winddirDegree NUMERIC,
-									winddir16Point STRING,
-									humidity NUMERIC,
-									visibility NUMERIC,
-									pressure NUMERIC,
-									cloudcover NUMERIC)
+CREATE OBJECTTYPE WeatherReport   (observation_time STRING,temp_C NUMERIC,windspeedMiles NUMERIC,winddirDegree NUMERIC,winddir16Point STRING,humidity NUMERIC,visibility NUMERIC,pressure NUMERIC,cloudcover NUMERIC)
+
 CREATE COLLECTION /WeatherReport OBJECTTYPE WeatherReport 
 
 # RequestQueue collection and object
