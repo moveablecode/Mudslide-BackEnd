@@ -160,7 +160,7 @@
 					<td style="width:33%;vertical-align: top;">
 						<div style="float:center;text-align: center;">
 							<h3>Other Players In Range</h3>
-							<input id="radiusRangeField" type="text" placeholder="(in Miles)" value="" name="name">
+							<input id="radiusRangeField" type="text" placeholder="(in Km)" value="" name="name">
 							<a id="findPlayersButton" onclick="PlayerModal.onFindPlayerAction();" class="submit" style="padding: 8px 18px; font-size: 16px;" href="#">Find</a><br>
 							<ul style="list-style-type: none;padding: 0px 15px;height: 30px;">
 								<li>
@@ -173,7 +173,17 @@
 						</div>
 					</td>
 				</tr>
-			</table>			
+				<tr>
+					<td>
+						<div style="float:center;text-align: center;">
+							<h3>Auto Player Update</h3>
+							<input id="delayField" type="text" placeholder="Time delay (s)" value="" ><br>
+							<input id="durationField" type="text" placeholder="Time duration (s)" value="" ><br>
+							<a id="autoPlayerUpdateButton" class="submit" onclick="PlayerModal.randomAutoPlayerUpdate();" style="margin-top: 30px;" href="#">Auto</a>
+						</div>
+					</td>
+				</tr>
+			</table>
 		</div>
     </body>
 </html>

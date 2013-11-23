@@ -194,6 +194,44 @@ var PlayerModal = (function() {
 				console.log(response);
 			});
 		},
+
+		randomAutoPlayerUpdate: function() {
+			
+			var delay = parseFloat(document.getElementById("delayField").value);
+			var duration = parseFloat(document.getElementById("durationField").value);
+
+			if(typeof delay == "number" && typeof duration == "number")
+			{
+				var currentTimeInSec = Date.now()/1000;
+				var endTimeInSec = currentTimeInSec + duration;
+
+				while(endTimeInSec > currentTimeInSec)
+				{
+					while((Date.now()/1000) < currentTimeInSec + delay)
+					{
+						console.log("delay");
+					}
+
+					var req = createXMLHTTPObject();
+					if (!req) return;
+					var method = "GET";
+					req.open("GET",ff.getBaseUrl() + "ff/ext/randomAutoPlayerUpdate?time=" + currentTimeInSec,true);
+					
+					req.onreadystatechange = function (response) {
+						playerAutoUpdateCallback(response);
+					}
+					req.send();
+
+					currentTimeInSec = Date.now()/1000;
+				}
+
+				alert("Auto update done!!");
+			}
+			else
+			{
+				alert("Incorrect input");
+			}
+        },
 		
 		onSuccess: function(result) {
 			console.log(result);
@@ -209,4 +247,30 @@ var PlayerModal = (function() {
     };
     return self;
 })();
+
+var XMLHttpFactories = [
+	function () {return new XMLHttpRequest()},
+	function () {return new ActiveXObject("Msxml2.XMLHTTP")},
+	function () {return new ActiveXObject("Msxml3.XMLHTTP")},
+	function () {return new ActiveXObject("Microsoft.XMLHTTP")}
+];
+
+function createXMLHTTPObject() {
+	var xmlhttp = false;
+	for (var i=0;i<XMLHttpFactories.length;i++) {
+		try {
+			xmlhttp = XMLHttpFactories[i]();
+		}
+		catch (e) {
+			continue;
+		}
+		break;
+	}
+	return xmlhttp;
+}
+
+function playerAutoUpdateCallback(response)
+{
+	console.log(response.target.response);
+}
 

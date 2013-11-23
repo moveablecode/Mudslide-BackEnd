@@ -1,4 +1,13 @@
 var ff = require('ffef/FatFractal');
+var httpclient = require ('ringo/httpclient');
+
+var currentRequestObject = null;
+
+var RequestStat = 
+{
+    Busy : 0,
+    Start : 1
+};
 
 var _FreeApiBaseURL = 'http://api.worldweatheronline.com/free/v1/';
 /*
@@ -17,20 +26,11 @@ function JSONP_LocalWeather(input) {
 }
 
 function LocalWeatherCallback(localWeather) {
-
-	// output = "<br/> Cloud Cover: " + localWeather.data.current_condition[0].cloudcover;
-	// output += "<br/> Humidity: " + localWeather.data.current_condition[0].humidity;
-	// output += "<br/> Temp C: " + localWeather.data.current_condition[0].temp_C;
-	// output += "<br/> Visibility: " + localWeather.data.current_condition[0].weatherDesc[0].value;
-	// output += "<br/> Observation Time: " + localWeather.data.current_condition[0].observation_time;
-	// output += "<br/> Pressue: " + localWeather.data.current_condition[0].pressure;
-	print("***************************2*******************************");
 	ReturnResponse(localWeather);
 }
 
 // Helper Method
 function sendRequest(url, callback) {
-    var httpclient = require ('ringo/httpclient');
 	httpclient.get(url, 'GET', callback);
 }
 
@@ -74,23 +74,90 @@ var ServiceLocatorModal = {
 	})()
 };
 
+function RenderResponseForRequestQueue(requestQueueObj)
+{
+	if(requestQueueObj != null)
+	{
+		print(">>>>>>>>>>>>>>>>>>>>>>REQUEST VALID<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+		ServiceLocatorModal.WeatherService.getWeatherForLatLong(requestQueueObj.player.latitude + ',' + requestQueueObj.player.longitude);
+	}
+}
+
 function handleServiceLocator() {
-	ServiceLocatorModal.WeatherService.getWeatherForLatLong('Bangalore');
+
+	print(">>>>>>>>>>>>>>>>>>>>>>SERVICE LOCATOR<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+
+	var playerRequestObj = ff.getEventHandlerData();
+
+	if(playerRequestObj.requestStatus == RequestStat.Start)
+	{
+		print(">>>>>>>>>>>>>>>>>>>>>>BEGIN LOOP<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+
+		var requestQueueArr = ff.getArrayFromUri("/RequestQueue?sort=updatedAt asc");
+
+		currentRequestObject = requestQueueArr[0];
+
+		RenderResponseForRequestQueue(currentRequestObject);
+	}
+	else
+	{
+		print(">>>>>>>>>>>>>>>>>>>>>>LOOP CANCELLED<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+	}
+
+	// ServiceLocatorModal.WeatherService.getWeatherForLatLong('Bangalore');
 }
 
 function ReturnResponse(output)
 {
-	// get collection name from parameters
-    data = ff.getExtensionRequestData();
-    badCollection = data.httpParameters.badCollection;
- 
-    // get response object
-    response = ff.response();
-	
-	response.responseCode = 200;
-	response.statusMessage = "OK";
-	response.result = output;
-	response.mimeType = "application/json";
+	print(">>>>>>>>>>>>>>>>>>>>>>RETURN RESPONSE<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+
+	var locationData = JSON.parse(output);
+
+	var weatherReportData = ff.getObjFromUrl("/ff/resources/WeatherReport/(createdBy eq '" + currentRequestObject.createdBy + "')");
+
+	if (weatherReportData && locationData.data.current_condition)
+	{
+		weatherReportData.observation_time	= locationData.data.current_condition[0].observation_time;
+		weatherReportData.temp_C = locationData.data.current_condition[0].temp_C;
+		weatherReportData.windspeedMiles = locationData.data.current_condition[0].windspeedMiles;
+		weatherReportData.winddirDegree = locationData.data.current_condition[0].winddirDegree;
+		weatherReportData.winddir16Point = locationData.data.current_condition[0].winddir16Point;
+		weatherReportData.humidity = locationData.data.current_condition[0].humidity;
+		weatherReportData.visibility = locationData.data.current_condition[0].visibility;
+		weatherReportData.pressure = locationData.data.current_condition[0].pressure;
+		weatherReportData.cloudcover = locationData.data.current_condition[0].cloudcover;
+
+		ff.updateObj(weatherReportData);
+	}
+
+	print(">>>>>>>>>>>>>>>>>>>>>>WEATHER UPDATED<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+
+	var requestQueueArr = ff.getArrayFromUri("/RequestQueue?sort=updatedAt asc");
+
+	if(currentRequestObject.guid == requestQueueArr[0].guid)
+	{
+		ff.deleteObj(currentRequestObject);
+		
+		if(requestQueueArr.length > 1)
+		{
+			currentRequestObject = requestQueueArr[1];
+		}
+		else
+		{
+			currentRequestObject = null;
+		}
+	}
+	else
+	{
+		currentRequestObject = requestQueueArr[0];
+	}
+	print(">>>>>>>>>>>>>>>>>>>>>>REQUEST DELETED<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+	print(currentRequestObject);
+
+	RenderResponseForRequestQueue(currentRequestObject);
+
+	print(">>>>>>>>>>>>>>>>>>>>>>2<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+	print(JSON.stringify(weatherReportData));
 }
 
 exports.handleServiceLocator = handleServiceLocator;

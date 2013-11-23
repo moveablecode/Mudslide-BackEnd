@@ -48,9 +48,35 @@ CREATE HANDLER WouldYaCreate POST ON /WouldYa Create as javascript:var h = requi
 
 # Player collection and object
 
-CREATE OBJECTTYPE Player   (userName STRING, location GEOLOCATION)
+CREATE OBJECTTYPE Player   (userName STRING, location GEOLOCATION, currentRealm NUMERIC, latitude NUMERIC, longitude NUMERIC)
 CREATE COLLECTION /Player OBJECTTYPE Player
 
-CREATE HANDLER CreatePlayer POST ON /FFUser Create AS javascript:require('scripts/NewPlayerEventHandler').handlePlayerCreate();
+CREATE HANDLER CreatePlayer POST ON /FFUser Create AS javascript:require('scripts/Player/NewPlayerEventHandler').handlePlayerCreate();
+CREATE HANDLER PlayerRequestUpdate POST ON /Player update AS javascript:require('scripts/Player/UpdatePlayerEventHandler').handlePlayerUpdate();
+
+
 CREATE EXTENSION /serverStatus UNSECURED AS javascript:require('scripts/ServerStat').checkServerStat();
 CREATE EXTENSION /serviceLocator UNSECURED AS javascript:require('scripts/ServiceLocator/ServiceLocatorHandler').handleServiceLocator();
+
+CREATE EXTENSION /randomAutoPlayerUpdate UNSECURED AS javascript:require('scripts/RandomAutoPlayerUpdate').handleAutoPlayerUpdate();
+CREATE EXTENSION /autoUserCreateDestroy UNSECURED AS javascript:require('scripts/AutoUserCreateDestroy').handleAutoUserCreateDestroy();
+
+# WeatherReport collection and object
+
+CREATE OBJECTTYPE WeatherReport   (observation_time STRING,
+									temp_C NUMERIC,
+									windspeedMiles NUMERIC,
+									winddirDegree NUMERIC,
+									winddir16Point STRING,
+									humidity NUMERIC,
+									visibility NUMERIC,
+									pressure NUMERIC,
+									cloudcover NUMERIC)
+CREATE COLLECTION /WeatherReport OBJECTTYPE WeatherReport 
+
+# RequestQueue collection and object
+
+CREATE OBJECTTYPE PlayerRequest   (requestStatus numeric, player Player)
+CREATE COLLECTION /RequestQueue OBJECTTYPE PlayerRequest
+
+CREATE HANDLER RequestQueueUpdate ASYNC ON /RequestQueue Create AS javascript:require('scripts/ServiceLocator/ServiceLocatorHandler').handleServiceLocator();
