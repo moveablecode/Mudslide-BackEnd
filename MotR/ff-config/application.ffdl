@@ -52,7 +52,7 @@ CREATE OBJECTTYPE Player   (userName STRING, location GEOLOCATION, currentRealm 
 CREATE COLLECTION /Player OBJECTTYPE Player
 
 CREATE HANDLER CreatePlayer POST ON /FFUser Create AS javascript:require('scripts/Player/NewPlayerEventHandler').handlePlayerCreate();
-CREATE HANDLER PlayerRequestUpdate POST ON /Player update AS javascript:require('scripts/Player/UpdatePlayerEventHandler').handlePlayerUpdate();
+CREATE HANDLER PlayerRequestUpdate POST ON /Player UPDATE AS javascript:require('scripts/Player/UpdatePlayerEventHandler').handlePlayerUpdate();
 
 
 CREATE EXTENSION /serverStatus UNSECURED AS javascript:require('scripts/ServerStat').checkServerStat();
@@ -69,7 +69,10 @@ CREATE COLLECTION /WeatherReport OBJECTTYPE WeatherReport
 
 # RequestQueue collection and object
 
-CREATE OBJECTTYPE PlayerRequest   (requestStatus numeric, player Player)
+CREATE OBJECTTYPE PlayerRequest   (requestStatus numeric, player REFERENCE /Player)
 CREATE COLLECTION /RequestQueue OBJECTTYPE PlayerRequest
 
-CREATE HANDLER RequestQueueUpdate ASYNC ON /RequestQueue Create AS javascript:require('scripts/ServiceLocator/ServiceLocatorHandler').handleServiceLocator();
+#DROP OBJECTTYPE PlayerRequest
+#DROP COLLECTION /RequestQueue
+
+#CREATE HANDLER RequestQueueUpdate ASYNC ON /RequestQueue CREATE AS javascript:require('scripts/ServiceLocator/ServiceLocatorHandler').handleServiceLocator();

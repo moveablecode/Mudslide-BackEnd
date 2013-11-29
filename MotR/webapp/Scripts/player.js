@@ -220,6 +220,7 @@ var PlayerModal = (function() {
 					req.onreadystatechange = function (response) {
 						playerAutoUpdateCallback(response);
 					}
+					console.log("send" + ff.getBaseUrl() + "ff/ext/randomAutoPlayerUpdate?time=" + currentTimeInSec);
 					req.send();
 
 					currentTimeInSec = Date.now()/1000;

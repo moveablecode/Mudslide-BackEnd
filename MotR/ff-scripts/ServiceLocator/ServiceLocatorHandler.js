@@ -1,42 +1,11 @@
 var ff = require('ffef/FatFractal');
 var httpclient = require ('ringo/httpclient');
+var {setTimeout} = require("ringo/scheduler");
+var weatherReportHeader = require("scripts/WeatherReport/WeatherReportHeader");
 
-var currentRequestObject = null;
+var requestQueueArr = [];
 
-var RequestStat = 
-{
-    Busy : 0,
-    Start : 1
-};
-
-// Weather Report
-function WeatherReport(data) {
-    if (data) {
-        this.clazz = data.clazz;
-		this.observation_time	= data.observation_time;
-		this.temp_C = data.temp_C;
-		this.windspeedMiles = data.windspeedMiles;
-		this.winddirDegree = data.winddirDegree;
-		this.winddir16Point = data.winddir16Point;
-		this.humidity = data.humidity;
-		this.visibility = data.visibility;
-		this.pressure = data.pressure;
-		this.cloudcover = data.cloudcover;
-    } else {
-        this.clazz = "WeatherReport";
-		this.observation_time	= "";
-		this.temp_C = -1;
-		this.windspeedMiles = 0;
-		this.winddirDegree = 0;
-		this.winddir16Point = "N";
-		this.humidity = 0;
-		this.visibility = 0;
-		this.pressure = 0;
-		this.cloudcover = 0;
-    }
-    return this;
-}
-
+// Base URL for worldweatheronline API call
 var _FreeApiBaseURL = 'http://api.worldweatheronline.com/free/v1/';
 /*
     Please change the FreeAPIKey to your own. 
@@ -47,28 +16,10 @@ var _FreeApiKey = 'jacd2qkqghh8tuav7apt9euv';
 
 // -------------------------------------------
 
-function JSONP_LocalWeather(input) {
-    var url = _FreeApiBaseURL + 'weather.ashx?q=' + input.query + '&format=' + input.format + '&extra=' + input.extra + '&num_of_days=' + input.num_of_days + '&date=' + input.date + '&fx=' + input.fx + '&cc=' + input.cc + '&includelocation=' + input.includelocation + '&show_comments=' + input.show_comments + '&key=' + _FreeApiKey;
-
-    sendRequest(url, input.callback);
-}
-
-function LocalWeatherCallback(localWeather) {
-	ReturnResponse(localWeather);
-}
-
-// Helper Method
-function sendRequest(url, callback) {
-	httpclient.get(url, 'GET', callback);
-}
-
-// -------------------------------------------
-
 var ServiceLocatorModal = {
 	
 	WeatherService : (function() {
-		//var weatherAPI = require('scripts/ServiceLocator/freeAPI');
-		
+
 		var self = {
 			getWeatherForLatLong : function (location)	{
 				var localWeatherInput = {
@@ -80,7 +31,8 @@ var ServiceLocatorModal = {
 					cc: '',
 					includelocation: '',
 					show_comments: '',
-					callback: LocalWeatherCallback
+					callback: LocalWeatherCallback,
+					error: LocalWeatherErrorCallback
 				};
 
 				JSONP_LocalWeather(localWeatherInput);
@@ -102,54 +54,120 @@ var ServiceLocatorModal = {
 	})()
 };
 
-function RenderResponseForRequestQueue(requestQueueObj)
+// --------------------------------------------------
+
+// Method to call Service locator if request valid
+function RenderResponseForRequestQueue(player)
 {
-	if(requestQueueObj != null)
+	if(player != null)
 	{
 		print(">>>>>>>>>>>>>>>>>>>>>>REQUEST VALID<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-		ServiceLocatorModal.WeatherService.getWeatherForLatLong(requestQueueObj.player.latitude + ',' + requestQueueObj.player.longitude);
+
+		ServiceLocatorModal.WeatherService.getWeatherForLatLong(player.latitude + ',' + player.longitude);
+	}
+	else
+	{
+		print(">>>>>>>>>>>>>>>>>>>>>>REQUEST INVALID<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 	}
 }
 
-function handleServiceLocator() {
+function JSONP_LocalWeather(input) {
+    var url = _FreeApiBaseURL + 'weather.ashx?q=' + input.query + '&format=' + input.format + '&extra=' + input.extra + '&num_of_days=' 
+    		+ input.num_of_days + '&date=' + input.date + '&fx=' + input.fx + '&cc=' + input.cc 
+    		+ '&includelocation=' + input.includelocation + '&show_comments=' + input.show_comments + '&key=' + _FreeApiKey;
+
+    // setTimeout(sendRequest, 300, [url, input]);
+
+    sendRequest([url, input]);
+}
+
+function sendRequest(parameters)
+{
+   	httpclient.get(parameters[0], "GET", parameters[1].callback, parameters[1].error);
+}
+
+// -------------------------------------------
+
+// Method to initiate Service locator
+function handleServiceLocator(requestObj) {
 
 	print(">>>>>>>>>>>>>>>>>>>>>>SERVICE LOCATOR<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 
-	var playerRequestObj = ff.getEventHandlerData();
+	// Adding request in queue
+	requestQueueArr.push(requestObj);
 
-	if(playerRequestObj.requestStatus == RequestStat.Start)
+	if(requestQueueArr.length == 1)
 	{
 		print(">>>>>>>>>>>>>>>>>>>>>>BEGIN LOOP<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 
-		var requestQueueArr = ff.getArrayFromUri("/RequestQueue?sort=updatedAt asc");
+		var currentPlayerObj = requestObj.player;
 
-		currentRequestObject = requestQueueArr[0];
-
-		RenderResponseForRequestQueue(currentRequestObject);
+		RenderResponseForRequestQueue(currentPlayerObj);
 	}
 	else
 	{
 		print(">>>>>>>>>>>>>>>>>>>>>>LOOP CANCELLED<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 	}
-
-	// ServiceLocatorModal.WeatherService.getWeatherForLatLong('Bangalore');
 }
 
-function ReturnResponse(output)
+// Success callback for weather service
+function LocalWeatherCallback(output)
 {
 	print(">>>>>>>>>>>>>>>>>>>>>>RETURN RESPONSE<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 
 	var locationData = JSON.parse(output);
 
-	var weatherReportData = ff.getObjFromUrl("/ff/resources/WeatherReport/(createdBy eq '" + currentRequestObject.createdBy + "')");
+	print(">>>>>>>>>>>>>>>>>>>>>>REQUEST DELETED<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 
+	// Deleting request from queue
+	var currentRequestObject = requestQueueArr.shift();
+
+	print(JSON.stringify(currentRequestObject));
+
+	var currentPlayerObj = currentRequestObject.player;
+
+	UpdateWeatherReportObject(locationData, currentPlayerObj);
+
+	// Extracting next request from queue
+	var nextPlayerObject = GetNextRequestInQueue(requestQueueArr);
+
+	print(">>>>>>>>>>>>>>>>>>>>>>NEXT LOOP<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+
+	// Entering next loop with new request object
+	RenderResponseForRequestQueue(nextPlayerObject);
+}
+
+// Error callback for weather service
+function LocalWeatherErrorCallback(errorResponse) {
+	print(">>>>>>>>>>>>>>>>>>>ERROR RESPONSE<<<<<<<<<<<<<<<");
+
+	// Deleting request from queue
+	var currentRequestObject = requestQueueArr.shift();
+
+	// Extracting next request from queue
+	var nextPlayerObject = GetNextRequestInQueue(requestQueueArr);
+
+	print(">>>>>>>>>>>>>>>>>>>>>>NEXT LOOP<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+
+	// Entering next loop with new request object
+	RenderResponseForRequestQueue(nextPlayerObject);
+}
+
+// Method to update weather report object for player
+function UpdateWeatherReportObject(locationData, currentPlayerObj)
+{
+	// Get current weather report is available for the player
+	var weatherReportData = ff.getObjFromUri("/WeatherReport/(createdBy eq '" + currentPlayerObj.createdBy + "')");
+
+	// Create a new WeatherReport object if not found for the player
 	if(weatherReportData == null)
 	{
-		var newWeatherReportObj = new WeatherReport();
+		var newWeatherReportObj = new weatherReportHeader.WeatherReport();
 
-		weatherReportData = ff.createObjAtUri(newWeatherReportObj, "/WeatherReport", currentRequestObject.createdBy);
+		weatherReportData = ff.createObjAtUri(newWeatherReportObj, "/WeatherReport", currentPlayerObj.createdBy);
 	}
 
+	// Update weather details if valid report values found
 	if (weatherReportData && locationData.data.current_condition)
 	{
 		weatherReportData.observation_time	= locationData.data.current_condition[0].observation_time;
@@ -165,35 +183,25 @@ function ReturnResponse(output)
 		ff.updateObj(weatherReportData);
 	}
 
+	print(JSON.stringify(weatherReportData));
 	print(">>>>>>>>>>>>>>>>>>>>>>WEATHER UPDATED<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+}
 
-	var requestQueueArr = ff.getArrayFromUri("/RequestQueue?sort=updatedAt asc");
-	print(requestQueueArr.length + "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+// Method to get next request in queue for the service locator
+function GetNextRequestInQueue(requestQueueArr)
+{
+	print(requestQueueArr.length);
 
-	if(currentRequestObject.guid == requestQueueArr[0].guid)
+	if(requestQueueArr.length > 0)
 	{
-		ff.deleteObj(currentRequestObject);
-		
-		if(requestQueueArr.length > 1)
-		{
-			currentRequestObject = requestQueueArr[1];
-		}
-		else
-		{
-			currentRequestObject = null;
-		}
+		var currentPlayerObj = requestQueueArr[0].player;
+
+		return currentPlayerObj;
 	}
 	else
 	{
-		currentRequestObject = requestQueueArr[0];
+		return null;
 	}
-	print(">>>>>>>>>>>>>>>>>>>>>>REQUEST DELETED<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-	print(currentRequestObject);
-
-	RenderResponseForRequestQueue(currentRequestObject);
-
-	print(">>>>>>>>>>>>>>>>>>>>>>2<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-	print(JSON.stringify(weatherReportData));
 }
 
 exports.handleServiceLocator = handleServiceLocator;

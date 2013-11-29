@@ -2,11 +2,10 @@ var ff = require('ffef/FatFractal');
 
 function checkServerStat() {
     // get collection name from parameters
-    data = ff.getExtensionRequestData();
-    badCollection = data.httpParameters.badCollection;
- 
+    var data = ff.getExtensionRequestData();
+
     // get response object
-    response = ff.response();
+    var response = ff.response();
 	
 	response.responseCode = 200;
 	response.statusMessage = "Server Connected";
